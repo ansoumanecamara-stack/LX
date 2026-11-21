@@ -1,36 +1,37 @@
-# Lx sur Render : « New + » > « Blueprint » > choisissez le dépôt Git contenant ce fichier.
-# Guide complet : RENDER.md
+# Lx sur Render, version 100 % GRATUITE (essai ou démonstration).
+# « New + » > « Blueprint » > choisissez le dépôt. Guide : RENDER.md
+# Limites : services mis en veille après 15 min sans visite (réveil d'environ 1 à 2 min), photos et visuels
+# envoyés effacés à chaque déploiement (pas de disque), base gratuite supprimée après 30 jours.
+# Pour une vraie mise en ligne, utilisez render.payant.yaml.
 databases:
-  - name: lx-db
+  - name: lxsn-db
     region: frankfurt
     postgresMajorVersion: "16"
     databaseName: lx_medusa
     user: lx
-    plan: 0.1c-256mb # « free » convient pour un essai (la base gratuite expire après 30 jours)
+    plan: free
 
 services:
   # API Medusa + administration (/app)
   - type: web
-    name: lx-backend
+    name: lxsn-api
     runtime: docker
     region: frankfurt
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    plan: 1c-2g # Medusa a besoin de mémoire ; ne descendez pas sous 1 Go
+    plan: free
     healthCheckPath: /health
-    # Photos des produits et visuels publicitaires : sans disque, elles disparaissent à chaque déploiement.
-    disk:
-      name: lx-uploads
-      mountPath: /app/static
-      sizeGB: 5
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: "9000"
+      # 512 Mo de mémoire au total : on limite le tas Node pour éviter l'arrêt par manque de mémoire
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=400
       - key: DATABASE_URL
         fromDatabase:
-          name: lx-db
+          name: lxsn-db
           property: connectionString
       - key: DATABASE_SSL
         value: "true"
@@ -42,9 +43,9 @@ services:
         value: admin@lx.sn
       - key: ADMIN_PASSWORD
         sync: false # mot de passe de l'administrateur, à saisir à la création
-      # Adresse publique de la vitrine. Si Render ajoute un suffixe au nom, corrigez-la ici (voir RENDER.md).
+      # Adresse publique de la vitrine. Si Render ajoute un suffixe au nom, corrigez-la (voir RENDER.md).
       - key: LX_STOREFRONT_URL
-        value: https://lx-storefront.onrender.com
+        value: https://lxsn-boutique.onrender.com
       - key: LX_DELIVERY_FEE
         value: "1500"
       - key: LX_WA_NUMBER
@@ -52,21 +53,20 @@ services:
 
   # Vitrine, espace client et espace boutique
   - type: web
-    name: lx-storefront
+    name: lxsn-boutique
     runtime: docker
     region: frankfurt
     dockerfilePath: ./storefront/Dockerfile
     dockerContext: ./storefront
-    plan: 0.5c-512mb # « free » convient pour un essai (se met en veille après 15 min sans visite)
+    plan: free
     healthCheckPath: /
     envVars:
       - key: PORT
         value: "3000"
-      - key: MEDUSA_HOSTPORT
-        fromService:
-          type: web
-          name: lx-backend
-          property: hostport
+      # Un service gratuit ne reçoit pas de trafic du réseau privé : la vitrine appelle l'adresse publique de l'API.
+      # Si Render ajoute un suffixe au nom, corrigez-la (voir RENDER.md).
+      - key: MEDUSA_INTERNAL_URL
+        value: https://lxsn-api.onrender.com
       - key: NEXT_PUBLIC_LX_PHONE
         value: "+221 77 000 00 00"
       - key: NEXT_PUBLIC_LX_EMAIL

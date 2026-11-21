@@ -12,13 +12,20 @@ if [ -n "$BACKEND_PUBLIC_URL" ]; then
 fi
 echo "[lx] Migrations…"
 npx medusa db:migrate
-echo "[lx] Données initiales (une seule fois)…"
-npx medusa exec ./src/scripts/seed-lx.js
-echo "[lx] Identifiants boutiques…"
-npx medusa exec ./src/scripts/backfill-shop-codes.js
-echo "[lx] Zones de livraison…"
-npx medusa exec ./src/scripts/seed-zones.js
-echo "[lx] Compte administrateur…"
-npx medusa user -e "${ADMIN_EMAIL:-admin@lx.sn}" -p "${ADMIN_PASSWORD:-ChangeMe!2026}" 2>&1 | tail -1 || true
+# Données initiales, identifiants, zones et compte admin : une seule fois par version (évite de les rejouer à chaque réveil).
+SEED_KEY="seed-${LX_SEED_VERSION:-2026-11-21}"
+if [ "$LX_FORCE_SEED" != "1" ] && NODE_PATH=/app/node_modules node /usr/local/bin/boot-state.js check "$SEED_KEY"; then
+  echo "[lx] Données initiales déjà installées ($SEED_KEY)."
+else
+  echo "[lx] Données initiales…"
+  npx medusa exec ./src/scripts/seed-lx.js
+  echo "[lx] Identifiants boutiques…"
+  npx medusa exec ./src/scripts/backfill-shop-codes.js
+  echo "[lx] Zones de livraison…"
+  npx medusa exec ./src/scripts/seed-zones.js
+  echo "[lx] Compte administrateur…"
+  npx medusa user -e "${ADMIN_EMAIL:-admin@lx.sn}" -p "${ADMIN_PASSWORD:-ChangeMe!2026}" 2>&1 | tail -1 || true
+  NODE_PATH=/app/node_modules node /usr/local/bin/boot-state.js mark "$SEED_KEY" || true
+fi
 echo "[lx] Démarrage de l'API sur :${PORT:-9000}"
 exec npx medusa start

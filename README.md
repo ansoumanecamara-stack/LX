@@ -131,5 +131,5 @@ Le conteneur tourne en production. En http://localhost le cookie de session est 
 Dézippez de préférence dans un dossier vide (en gardant votre fichier `.env`). Si le zip a été copié par-dessus une ancienne version, d'anciens fichiers peuvent rester (par exemple `storefront/components/ProductCard.tsx`) : ils sont désormais ignorés par la construction Docker et par la vérification des types, mais vous pouvez les supprimer sans risque.
 
 **Déploiement**
-- Render : `render.yaml` et `RENDER.md` (base, API et vitrine en un clic depuis un dépôt Git).
+- Render : `render.yaml` (gratuit) ou `render.payant.yaml`, et `RENDER.md` (base, API et vitrine en un clic depuis un dépôt Git).
 - Coolify : `COOLIFY.md`. Local : `docker compose up --build`.
