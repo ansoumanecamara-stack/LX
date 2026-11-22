@@ -3,10 +3,9 @@ import { CartProvider } from "@/lib/cart"
 import { CustomerProvider } from "@/lib/customer"
 import { FavoritesProvider } from "@/lib/favorites"
 import { ToastProvider } from "@/components/ui/Toast"
-import { SITE } from "@/lib/site"
 import "./globals.css"
 
-export const metadata: Metadata = { metadataBase: new URL(SITE), openGraph: { siteName: "Lx", locale: "fr_SN", type: "website", title: "Lx, Lo Soxla ?", description: "Produits livrés et ouvriers agréés à domicile au Sénégal." }, applicationName: "Lx", manifest: "/manifest.webmanifest", appleWebApp: { capable: true, title: "Lx", statusBarStyle: "default" }, icons: { icon: "/icon-192.png", apple: "/apple-touch-icon.png" }, formatDetection: { telephone: false }, title: "Lx, Lo Soxla ? Courses et livraison au Sénégal", description: "Trouvez un produit chez nos boutiques agréées, on le livre. Sa Soxla, Sunu Soxla." }
+export const metadata: Metadata = { applicationName: "Lx", manifest: "/manifest.webmanifest", appleWebApp: { capable: true, title: "Lx", statusBarStyle: "default" }, icons: { icon: "/icon-192.png", apple: "/apple-touch-icon.png" }, formatDetection: { telephone: false }, title: "Lx, Lo Soxla ? Courses et livraison au Sénégal", description: "Trouvez un produit chez nos boutiques agréées, on le livre. Sa Soxla, Sunu Soxla." }
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0B7A43" }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

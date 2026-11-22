@@ -16,7 +16,7 @@ import { fcfa, post, store } from "@/lib/medusa"
 
 const PAY: [string, string][] = [["cod", "Paiement à la livraison"], ["wave", "Wave"], ["orange_money", "Orange Money"], ["card", "Carte bancaire"]]
 type Option = { id: string; name: string; amount: number }
-type CartShop = { id: string; code: string; subtotal: number; wave?: string | null; om?: string | null }
+type CartShop = { id: string; name: string; subtotal: number; wave?: string | null; om?: string | null }
 
 export default function CheckoutForm() {
   const { cart, reset, reload } = useCart(); const router = useRouter(); const { customer } = useCustomer()
@@ -79,8 +79,8 @@ export default function CheckoutForm() {
               <input type="radio" name="payment" value={v} checked={pay === v} onChange={() => setPay(v)} className="accent-brand-600" />{l}</label>))}</div>
           {mobile && <div className="animate-pop-in space-y-4 rounded-2xl bg-accent-500/15 p-4 text-sm">
             <p>Chaque boutique est payée directement sur son numéro {pay === "wave" ? "Wave" : "Orange Money"}. Après chaque envoi, saisissez la référence reçue par SMS.</p>
-            {shops.map((sh) => (<div key={sh.id} data-testid="shop-pay" className="space-y-2 rounded-xl bg-white p-3"><p>Envoyez <b>{fcfa(due(sh))}</b> à la boutique <b>{sh.code}</b> au <b className="font-display text-lg">{pay === "wave" ? sh.wave : sh.om}</b></p>
-              <Field label={`Référence du paiement à ${sh.code}`}>{(id) => <Input id={id} name={`ref_${sh.id}`} placeholder="ex : MP241115.1234.A56789" required />}</Field></div>))}
+            {shops.map((sh) => (<div key={sh.id} data-testid="shop-pay" className="space-y-2 rounded-xl bg-white p-3"><p>Envoyez <b>{fcfa(due(sh))}</b> à <b>{sh.name}</b> au <b className="font-display text-lg">{pay === "wave" ? sh.wave : sh.om}</b></p>
+              <Field label={`Référence du paiement à ${sh.name}`}>{(id) => <Input id={id} name={`ref_${sh.id}`} placeholder="ex : MP241115.1234.A56789" required />}</Field></div>))}
             <p className="text-slate-600">Les frais de livraison ({fcfa(fee)}) se règlent au livreur Lx à la réception.</p></div>}
           {pay === "card" && <p className="text-xs text-slate-500">Le paiement par carte est enregistré, un conseiller Lx vous envoie le lien de paiement.</p>}
           <Button size="lg" full loading={busy} data-testid="confirm-order">{busy ? "Validation…" : `Confirmer et payer ${fcfa(total)}`}</Button></form>

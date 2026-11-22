@@ -10,7 +10,6 @@ export default function TrackPage() {
   const [ref, setRef] = useState(""), [phone, setPhone] = useState(""), [q, setQ] = useState<{ r: string; p: string } | null>(null)
   return (<><PageHeader title="Suivre ma commande" />
     <Container className="py-8">
-      <p className="mb-5 text-sm text-slate-600">Une demande de service à domicile ? <a href="/services/suivi" className="font-bold text-brand-600 underline underline-offset-4">Suivez-la ici</a>.</p>
       <form className="mb-8 grid max-w-3xl items-end gap-4 sm:grid-cols-[1fr_1fr_auto]" onSubmit={(e) => { e.preventDefault(); setQ({ r: ref.replace(/\D/g, ""), p: phone.replace(/\D/g, "") }) }}>
         <Field label="N° de commande">{(id) => <Input id={id} value={ref} onChange={(e) => setRef(e.target.value)} placeholder="ex : 12" required />}</Field>
         <Field label="Votre téléphone">{(id) => <Input id={id} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="77 000 00 00" required />}</Field>

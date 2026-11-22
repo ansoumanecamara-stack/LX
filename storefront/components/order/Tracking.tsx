@@ -24,7 +24,7 @@ export default function Tracking({ refNo, phone }: { refNo: string; phone: strin
   return (<div className="space-y-5" data-testid="tracking">
     <h2 className="text-xl font-bold">Commande #{d.order_display_id}</h2>
     {d.shop_orders.map((s: any) => (<Card key={s.id}>
-      <CardHeader><div className="font-bold">{s.shop ? `Boutique ${s.shop}` : "Boutique"}</div><Badge tone={TONE[s.status] ?? "gray"}>{LABEL[s.status] ?? s.status}</Badge></CardHeader>
+      <CardHeader><div className="font-bold">{s.shop}</div><Badge tone={TONE[s.status] ?? "gray"}>{LABEL[s.status] ?? s.status}</Badge></CardHeader>
       {s.status in IDX && <Stepper steps={STEPS} current={IDX[s.status]} finished={s.status === "delivered"} />}
       <CardBody className="space-y-3">
         {s.delivery_code && !["delivered", "rejected", "cancelled"].includes(s.status) && <div data-testid="delivery-code" className="flex items-center gap-3 rounded-2xl bg-accent-500/15 p-4"><KeyRound className="size-6 shrink-0 text-yellow-800" /><div><p className="text-sm text-slate-600">Code de livraison : à donner au livreur à la réception</p><p className="font-display text-3xl font-extrabold tracking-[0.3em]">{s.delivery_code}</p></div></div>}

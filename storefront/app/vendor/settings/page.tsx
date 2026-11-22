@@ -12,7 +12,7 @@ function Inner() {
     e.preventDefault(); setBusy(true); const f = new FormData(e.currentTarget), g = (k: string) => String(f.get(k) || "").trim()
     try { const d = await vendorApi("/me", { name: g("name"), phone: g("phone"), wave: g("wave"), om: g("om"), address: g("address") }); setShop(d.shop); toast("Coordonnées enregistrées.") } catch (er: any) { toast(er.message, true) } finally { setBusy(false) } }}>
     <Card><CardHeader><h2 className="text-lg font-bold">Commandes</h2></CardHeader><CardBody className="space-y-4">
-      <Field label="Nom de la boutique" hint={`Votre nom reste privé. Vos clients voient seulement votre identifiant public : ${shop.code ?? "en cours d'attribution"}.`}>{(id) => <Input id={id} name="name" defaultValue={shop.name} required />}</Field>
+      <Field label="Nom de la boutique">{(id) => <Input id={id} name="name" defaultValue={shop.name} required />}</Field>
       <Field label="WhatsApp des commandes" hint="Chaque nouvelle commande de votre boutique est signalée sur ce numéro.">{(id) => <Input id={id} name="phone" defaultValue={shop.phone} required data-testid="set-phone" />}</Field>
       <Field label="Adresse de la boutique" hint="Là où le livreur Lx récupère le colis.">{(id) => <Input id={id} name="address" defaultValue={shop.address ?? ""} />}</Field></CardBody></Card>
     <Card><CardHeader><h2 className="text-lg font-bold">Paiements des clients</h2></CardHeader><CardBody className="space-y-4">

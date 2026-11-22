@@ -1,0 +1,2 @@
+const http = require('http'); let n = 0
+http.createServer((q, s) => { let b = ''; q.on('data', (c) => (b += c)); q.on('end', () => { if (q.headers.authorization !== 'Bearer testkey') { s.statusCode = 401; return s.end('{}') } const j = JSON.parse(b); n++; s.setHeader('content-type', 'application/json'); s.end(JSON.stringify({ id: 'cos-' + n, wave_launch_url: 'https://pay.wave.com/c/cos-' + n, amount: j.amount, currency: j.currency, client_reference: j.client_reference })) }) }).listen(9911)

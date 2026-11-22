@@ -1,0 +1,78 @@
+# Lx sur Render, version PAYANTE (production). Pour l utiliser : renommez ce fichier en render.yaml.
+# Guide complet : RENDER.md
+databases:
+  - name: lxsn-db
+    region: frankfurt
+    postgresMajorVersion: "16"
+    databaseName: lx_medusa
+    user: lx
+    plan: 0.1c-256mb # « free » convient pour un essai (la base gratuite expire après 30 jours)
+
+services:
+  # API Medusa + administration (/app)
+  - type: web
+    name: lxsn-api
+    runtime: docker
+    region: frankfurt
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: 1c-2g # Medusa a besoin de mémoire ; ne descendez pas sous 1 Go
+    healthCheckPath: /health
+    # Photos des produits et visuels publicitaires : sans disque, elles disparaissent à chaque déploiement.
+    disk:
+      name: lx-uploads
+      mountPath: /app/static
+      sizeGB: 5
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "9000"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lxsn-db
+          property: connectionString
+      - key: DATABASE_SSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@lx.sn
+      - key: ADMIN_PASSWORD
+        sync: false # mot de passe de l'administrateur, à saisir à la création
+      # Adresse publique de la vitrine. Si Render ajoute un suffixe au nom, corrigez-la ici (voir RENDER.md).
+      - key: LX_STOREFRONT_URL
+        value: https://lxsn-boutique.onrender.com
+      - key: LX_DELIVERY_FEE
+        value: "1500"
+      - key: LX_WA_NUMBER
+        value: "221770000000"
+      # Paiement Wave automatique (facultatif) : à renseigner seulement si vous utilisez le mode « API Wave » (voir README)
+      - key: LX_WAVE_API_KEY
+        sync: false
+      - key: LX_WAVE_WEBHOOK_SECRET
+        sync: false
+
+  # Vitrine, espace client et espace boutique
+  - type: web
+    name: lxsn-boutique
+    runtime: docker
+    region: frankfurt
+    dockerfilePath: ./storefront/Dockerfile
+    dockerContext: ./storefront
+    plan: 0.5c-512mb # « free » convient pour un essai (se met en veille après 15 min sans visite)
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: MEDUSA_HOSTPORT
+        fromService:
+          type: web
+          name: lxsn-api
+          property: hostport
+      - key: NEXT_PUBLIC_LX_PHONE
+        value: "+221 77 000 00 00"
+      - key: NEXT_PUBLIC_LX_EMAIL
+        value: contact@lx.sn

@@ -9,7 +9,7 @@ import { useCart } from "@/lib/cart"
 import { useCustomer } from "@/lib/customer"
 import { cn } from "@/lib/cn"
 
-const NAV: [string, string][] = [["/store", "Produits"], ["/services", "Services à domicile"], ["/outiko", "OUTIKO et JEULIKO"], ["/#commande", "Comment ça marche"], ["/track", "Suivre ma commande"], ["/register-shop", "Vendre sur Lx"]]
+const NAV: [string, string][] = [["/store", "Produits"], ["/outiko", "OUTIKO et JEULIKO"], ["/#commande", "Comment ça marche"], ["/track", "Suivre ma commande"], ["/register-shop", "Vendre sur Lx"]]
 
 export default function Header({ phone }: { phone: string; email: string }) {
   const { count } = useCart(); const { customer } = useCustomer(); const router = useRouter(); const path = usePathname()
