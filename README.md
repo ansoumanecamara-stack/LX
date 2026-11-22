@@ -133,3 +133,13 @@ Dézippez de préférence dans un dossier vide (en gardant votre fichier `.env`)
 **Déploiement**
 - Render : `render.yaml` (gratuit) ou `render.payant.yaml`, et `RENDER.md` (base, API et vitrine en un clic depuis un dépôt Git).
 - Coolify : `COOLIFY.md`. Local : `docker compose up --build`.
+
+## Services à domicile (ouvriers agréés)
+
+Lx ne gère pas que des produits : plomberie, électricité, informatique, maçonnerie et bricolage, climatisation, peinture, menuiserie, serrurerie, nettoyage, déménagement, jardinage, TV/antenne/Wi-Fi (12 services au départ, extensibles depuis l'admin).
+
+- **Client** : `/services` (catalogue), `/services/<slug>` (demande : adresse, jour, créneau, détails), `/services/suivi` (référence SRV-xxxxx + téléphone : statut, devis, accepter ou annuler).
+- **Admin Medusa** : menu *Services* → onglets *Demandes* (devis, affectation d'un ouvrier, statut, note interne, WhatsApp client), *Catalogue* (ajout/modification, photo, prix « à partir de », visibilité), *Ouvriers* (code OUV-0001…).
+- **Parcours** : demande reçue → devis → confirmée (le client accepte, un ouvrier doit être affecté) → en cours → terminée. Annulation possible avant le démarrage. Paiement après l'intervention.
+- **Confidentialité** : le client ne voit que le code ouvrier (OUV-0001), jamais son nom ni son téléphone ; la note interne n'est jamais exposée.
+- **Mise en place** : `npx medusa db:migrate` (nouvelles tables), puis `npx medusa exec ./src/scripts/seed-services.ts` (idempotent ; lancé automatiquement par `docker-entrypoint.sh`). Photos dans `storefront/public/img/services/`.

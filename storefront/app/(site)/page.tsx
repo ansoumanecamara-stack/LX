@@ -6,13 +6,16 @@ import LiveOrder from "@/components/home/LiveOrder"
 import ProductGrid from "@/components/product/ProductGrid"
 import Button from "@/components/ui/Button"
 import Container from "@/components/ui/Container"
+import ServiceCard from "@/components/services/ServiceCard"
 import { listProducts } from "@/lib/medusa"
+import { listServices } from "@/lib/services"
 export const dynamic = "force-dynamic"
 
 const rise = (ms: number) => ({ animationDelay: `${ms}ms` })
 
 export default async function Home() {
   const products = await listProducts({ limit: 4 }).catch(() => [])
+  const services = (await listServices()).slice(0, 4)
   return (<>
     <section className="relative overflow-hidden bg-surface">
       <Container className="grid grid-cols-1 items-center gap-16 pb-24 pt-14 lg:grid-cols-[1.1fr_0.9fr] lg:pb-32 lg:pt-20">
@@ -45,6 +48,11 @@ export default async function Home() {
           <Bike className="size-9 text-accent-500 transition-transform duration-500 group-hover:translate-x-2" />
           <div className="mt-10"><h3 className="text-3xl font-extrabold">JEULIKO</h3><p className="mt-2 max-w-sm leading-relaxed text-white/75">Vous avez déjà acheté ou réservé chez un vendeur ? Lx passe le récupérer et vous le livre.</p></div></Link>
       </div></Container></section>
+
+    {services.length > 0 && <section className="py-20"><Container>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-extrabold sm:text-4xl">Des ouvriers agréés chez vous</h2><p className="mt-2 max-w-xl text-slate-600">Plomberie, électricité, informatique, bricolage et bien d&apos;autres. Devis avant le travail, paiement après.</p></div>
+        <Link href="/services" className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:underline">Tous les services<ArrowRight className="size-4" /></Link></div>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{services.map((s) => <ServiceCard key={s.id} s={s} />)}</div></Container></section>}
 
     <AdSlot slot="home_banner" className="pb-16" />
 
