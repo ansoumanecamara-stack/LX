@@ -4,7 +4,7 @@ import { Badge, Button, Container, Heading, Input, Label, Text, Textarea } from 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { api } from "./api"
 
-type Booking = { id: string; ref: string; service_name: string; customer_name: string; customer_phone: string; address: string; area: string | null; preferred_date: string; time_slot: string; details: string; status: string; quote_amount: number | null; worker_id: string | null; worker_code: string | null; admin_note: string | null; worker: { code: string; name: string; phone: string } | null; whatsapp_link: string; created_at: string }
+type Booking = { id: string; ref: string; service_name: string; customer_name: string; customer_phone: string; address: string; area: string | null; preferred_date: string; time_slot: string; details: string; status: string; quote_amount: number | null; worker_id: string | null; worker_code: string | null; admin_note: string | null; worker: { code: string; name: string; phone: string } | null; whatsapp_link: string; worker_whatsapp_link: string | null; rating: number | null; review_text: string | null; created_at: string }
 type Worker = { id: string; code: string; name: string; phone: string; trades: string; zone: string | null; active: boolean; notes: string | null }
 type Service = { id: string; slug: string; name: string; group: string; summary: string; description: string | null; image_url: string | null; icon: string; price_from: number | null; price_note: string | null; active: boolean; sort: number }
 const TONE: Record<string, "orange" | "blue" | "green" | "red" | "grey" | "purple"> = { new: "orange", quoted: "blue", confirmed: "purple", in_progress: "blue", done: "green", cancelled: "red" }
@@ -12,9 +12,9 @@ const ICONS = ["wrench", "zap", "monitor", "hammer", "snowflake", "paintbrush", 
 const NEXT: Record<string, [string, string][]> = { new: [["cancelled", "Annuler"]], quoted: [["cancelled", "Annuler"]], confirmed: [["in_progress", "Démarrer l'intervention"], ["cancelled", "Annuler"]], in_progress: [["done", "Marquer terminée"]], done: [], cancelled: [] }
 const toB64 = (f: File) => new Promise<string>((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = ko; r.readAsDataURL(f) })
 
-const BookingCard = ({ b, workers, statuses, slots, reload, fail }: { b: Booking; workers: Worker[]; statuses: Record<string, string>; slots: Record<string, string>; reload: () => void; fail: (m: string) => void }) => {
+const BookingCard = ({ b, workers, statuses, slots, reload, fail }: { b: Booking; workers: Worker[]; statuses: Record<string, string>; slots: Record<string, string>; reload: () => Promise<void>; fail: (m: string) => void }) => {
   const [quote, setQuote] = useState(b.quote_amount?.toString() ?? ""), [note, setNote] = useState(b.admin_note ?? ""), [busy, setBusy] = useState(false)
-  const patch = async (body: any) => { setBusy(true); try { await api(`service-bookings/${b.id}`, body); reload() } catch (e: any) { fail(e.message) } finally { setBusy(false) } }
+  const patch = async (body: any) => { setBusy(true); try { const r = await api(`service-bookings/${b.id}`, body); await reload(); if (r.worker_notified === false) fail("Ouvrier affecté, mais pas prévenu automatiquement (WhatsApp non configuré) : utilisez le bouton « WhatsApp ouvrier ». ") } catch (e: any) { fail(e.message) } finally { setBusy(false) } }
   const trade = (b.service_name || "").toLowerCase()
   const suited = workers.filter((w) => w.active)
   return (
@@ -25,6 +25,7 @@ const BookingCard = ({ b, workers, statuses, slots, reload, fail }: { b: Booking
       <Text size="small" className="mt-2">{b.address}{b.area ? `, ${b.area}` : ""}</Text>
       <Text size="small" className="text-ui-fg-subtle">{b.preferred_date} · {slots[b.time_slot] ?? b.time_slot}</Text>
       <Text size="small" className="mt-2 whitespace-pre-wrap">{b.details}</Text>
+      {b.rating != null && <div className="mt-2 rounded-md bg-ui-bg-subtle p-2" data-testid="review"><Text size="small" weight="plus">Avis client : {"★".repeat(b.rating)}{"☆".repeat(5 - b.rating)} ({b.rating}/5)</Text>{b.review_text && <Text size="small" className="text-ui-fg-subtle">{b.review_text}</Text>}</div>}
       <div className="mt-3 grid gap-3 md:grid-cols-3">
         <div><Label size="small">Devis (FCFA)</Label>
           <div className="flex gap-2"><Input size="small" type="number" min={0} value={quote} onChange={(e) => setQuote(e.target.value)} aria-label="Devis" data-testid="quote-input" />
@@ -38,7 +39,8 @@ const BookingCard = ({ b, workers, statuses, slots, reload, fail }: { b: Booking
       <div className="mt-3 flex flex-wrap gap-2">
         {b.status === "quoted" && <Button size="small" isLoading={busy} onClick={() => patch({ status: "confirmed" })} data-testid="confirm">Confirmer (client d&apos;accord)</Button>}
         {(NEXT[b.status] ?? []).map(([s, l]) => <Button key={s} size="small" variant={s === "cancelled" ? "danger" : "primary"} isLoading={busy} onClick={() => patch({ status: s })}>{l}</Button>)}
-        <a href={b.whatsapp_link} target="_blank" rel="noreferrer"><Button size="small" variant="secondary">WhatsApp client</Button></a></div>
+        <a href={b.whatsapp_link} target="_blank" rel="noreferrer"><Button size="small" variant="secondary">WhatsApp client</Button></a>
+        {b.worker_whatsapp_link && !["done", "cancelled"].includes(b.status) && <a href={b.worker_whatsapp_link} target="_blank" rel="noreferrer"><Button size="small" variant="secondary" data-testid="wa-worker">WhatsApp ouvrier</Button></a>}</div>
     </div>)
 }
 

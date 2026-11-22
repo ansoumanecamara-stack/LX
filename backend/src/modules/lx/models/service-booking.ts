@@ -19,5 +19,8 @@ const ServiceBooking = model.define("service_booking", {
   worker_id: model.text().nullable(),
   worker_code: model.text().nullable(),
   admin_note: model.text().nullable(), // interne, jamais exposé au client
+  rating: model.number().nullable(), // avis client 1 à 5, uniquement après « Terminée »
+  review_text: model.text().nullable(),
+  reviewed_at: model.dateTime().nullable(),
 })
 export default ServiceBooking

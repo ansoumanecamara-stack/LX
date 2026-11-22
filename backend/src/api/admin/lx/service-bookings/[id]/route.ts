@@ -1,6 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { lx, waSend } from "../../../../../lib/lx"
-import { SLOTS, STATUS } from "../../../../../lib/services"
+import { SLOTS, STATUS, workerMessage } from "../../../../../lib/services"
 
 // Le conseiller Lx fixe le devis, affecte un ouvrier, fait avancer le statut.
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
@@ -27,5 +27,16 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     const txt = u.status === "quoted" ? `Lx : devis pour votre demande ${u.ref} : ${u.quote_amount} FCFA. Acceptez-le ici : ${link}` : `Lx : demande ${u.ref}, ${STATUS[u.status]}${u.worker_code ? ` (ouvrier ${u.worker_code})` : ""}. ${link}`
     waSend(u.customer_phone, txt).catch(() => {})
   }
-  res.json({ booking: u })
+  // Prévenir l'ouvrier : affectation, changement d'ouvrier ou annulation
+  let worker_notified: boolean | null = null
+  const workerChanged = u.worker_id && u.worker_id !== cur.worker_id
+  if (workerChanged || (u.worker_id && u.status === "cancelled" && cur.status !== "cancelled")) {
+    const [w] = await svc.listWorkers({ id: u.worker_id } as any)
+    if (w) worker_notified = await waSend(w.phone, workerMessage(u, w.name, u.status === "cancelled"))
+  }
+  if (cur.worker_id && cur.worker_id !== u.worker_id) {
+    const [old] = await svc.listWorkers({ id: cur.worker_id } as any)
+    if (old) waSend(old.phone, `Lx : la demande ${u.ref} (${u.service_name}) ne vous est plus affectée. Merci.`).catch(() => {})
+  }
+  res.json({ booking: u, worker_notified })
 }

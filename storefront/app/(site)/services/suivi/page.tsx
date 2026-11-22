@@ -10,6 +10,8 @@ import Container from "@/components/ui/Container"
 import { Field, Input } from "@/components/ui/Field"
 import PageHeader from "@/components/ui/PageHeader"
 import Stepper from "@/components/ui/Stepper"
+import ReviewForm from "@/components/services/ReviewForm"
+import Stars from "@/components/services/Stars"
 import { fcfa, store } from "@/lib/medusa"
 import { dayLabel, type Booking } from "@/lib/services"
 
@@ -49,6 +51,8 @@ function Inner() {
           {b.quote_amount !== null && <div className="rounded-2xl bg-brand-50 p-5"><p className="text-sm text-brand-700">Devis</p><p className="font-display text-3xl font-extrabold text-brand-700" data-testid="quote">{fcfa(b.quote_amount)}</p>
             <p className="mt-1 text-sm text-slate-600">À payer à la fin de l&apos;intervention, en espèces, Wave ou Orange Money.</p></div>}
           {b.status === "new" && <p className="rounded-2xl bg-surface p-4 text-sm text-slate-600">Un conseiller Lx vous contacte bientôt avec un devis.</p>}
+          {b.can_review && <ReviewForm b={b} phone={phone} onDone={setB} />}
+          {b.rating != null && <div className="rounded-2xl bg-surface p-5" data-testid="my-review"><p className="text-sm text-slate-500">Votre avis</p><Stars value={b.rating} className="size-6" />{b.review_text && <p className="mt-2 text-[15px] text-slate-700">{b.review_text}</p>}<p className="mt-2 text-sm text-slate-500">Merci, il aide les autres clients.</p></div>}
           <div className="flex flex-wrap gap-3">
             {b.status === "quoted" && <Button onClick={() => act("accept")} loading={busy} data-testid="accept-quote">Accepter le devis</Button>}
             {["new", "quoted", "confirmed"].includes(b.status) && <Button variant="secondary" onClick={() => act("cancel")} disabled={busy} data-testid="cancel-booking">Annuler la demande</Button>}

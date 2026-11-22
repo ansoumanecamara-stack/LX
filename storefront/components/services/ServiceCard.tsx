@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn"
 import { fcfa, img } from "@/lib/medusa"
 import type { Service } from "@/lib/services"
 import ServiceIcon from "./ServiceIcon"
+import Stars from "./Stars"
 
 /** Carte de service : photo quand elle existe, sinon grande icône sur fond de marque. */
 export default function ServiceCard({ s, className }: { s: Service; className?: string }) {
@@ -19,6 +20,7 @@ export default function ServiceCard({ s, className }: { s: Service; className?: 
       <div className="flex flex-1 flex-col p-5">
         <h3 className="font-display text-xl font-bold leading-tight">{s.name}</h3>
         <p className="mt-1.5 flex-1 text-sm leading-relaxed text-slate-600">{s.summary}</p>
+        {s.rating && <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500"><Stars value={s.rating.avg} className="size-3.5" />{s.rating.avg} ({s.rating.count})</p>}
         <p className="mt-4 text-sm font-bold text-brand-600">{s.price_from ? `À partir de ${fcfa(s.price_from)}` : "Devis gratuit"}</p>
       </div>
     </Link>

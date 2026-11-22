@@ -23,11 +23,12 @@ else
   npx medusa exec ./src/scripts/backfill-shop-codes.js
   echo "[lx] Zones de livraison…"
   npx medusa exec ./src/scripts/seed-zones.js
-  echo "[lx] Services à domicile…"
-  npx medusa exec ./src/scripts/seed-services.js
   echo "[lx] Compte administrateur…"
   npx medusa user -e "${ADMIN_EMAIL:-admin@lx.sn}" -p "${ADMIN_PASSWORD:-ChangeMe!2026}" 2>&1 | tail -1 || true
   NODE_PATH=/app/node_modules node /usr/local/bin/boot-state.js mark "$SEED_KEY" || true
 fi
+# Catalogue des services : idempotent (n'ajoute que les services manquants), donc rejoué à chaque démarrage.
+echo "[lx] Services à domicile…"
+npx medusa exec ./src/scripts/seed-services.js || true
 echo "[lx] Démarrage de l'API sur :${PORT:-9000}"
 exec npx medusa start

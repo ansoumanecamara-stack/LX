@@ -143,3 +143,14 @@ Lx ne gère pas que des produits : plomberie, électricité, informatique, maço
 - **Parcours** : demande reçue → devis → confirmée (le client accepte, un ouvrier doit être affecté) → en cours → terminée. Annulation possible avant le démarrage. Paiement après l'intervention.
 - **Confidentialité** : le client ne voit que le code ouvrier (OUV-0001), jamais son nom ni son téléphone ; la note interne n'est jamais exposée.
 - **Mise en place** : `npx medusa db:migrate` (nouvelles tables), puis `npx medusa exec ./src/scripts/seed-services.ts` (idempotent ; lancé automatiquement par `docker-entrypoint.sh`). Photos dans `storefront/public/img/services/`.
+
+## Sécurité et référencement
+- Limite de tentatives (429) sur les formulaires publics et les suivis (`backend/src/lib/rate-limit.ts`, en mémoire, par IP).
+- En-têtes de sécurité, `robots.txt` et `sitemap.xml` (variable `NEXT_PUBLIC_SITE_URL` = adresse publique du site), pages introuvable, erreur et chargement.
+- À faire en production : changer `ADMIN_PASSWORD`, et le mot de passe du vendeur démo `boutique@lx.sn`.
+
+## Avis, alertes ouvriers, tableau de bord
+- **Avis clients** : une fois l'intervention « Terminée », le client note de 1 à 5 sur `/services/suivi` (une seule fois, commentaire facultatif). La note moyenne s'affiche sur les cartes et la page du service, avec les derniers commentaires (prénom + initiale seulement). L'admin voit l'avis dans la demande ; un avis de 1 ou 2 étoiles déclenche une alerte WhatsApp à `LX_WA_NUMBER`.
+- **WhatsApp ouvrier** : à l'affectation, l'ouvrier reçoit réf., service, jour, adresse, client, détails et devis ; il est aussi prévenu en cas de changement d'ouvrier ou d'annulation. Sans API WhatsApp (`LX_WA_TOKEN`, `LX_WA_PHONE_ID`), l'admin a un bouton « WhatsApp ouvrier » qui ouvre le message déjà rédigé.
+- **Tableau de bord** (admin, menu « Tableau de bord Lx ») : chiffre d'affaires (commandes livrées, caisse, services terminés) sur 7/30/90 jours, courbe par jour, alertes « à traiter », statuts, services et boutiques en tête, satisfaction.
+- Migration : `npx medusa db:migrate` (colonnes d'avis sur `service_booking`), lancée automatiquement par Docker.
