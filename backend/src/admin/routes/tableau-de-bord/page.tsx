@@ -4,7 +4,7 @@ import { Badge, Button, Container, Heading, Text } from "@medusajs/ui"
 import { useCallback, useEffect, useState } from "react"
 import { api } from "./api"
 
-type D = { days: number; since: string; revenue: { orders: number; pos: number; services: number }; counts: Record<string, number>; orders_by_status: Record<string, number>; bookings_by_status: Record<string, number>; attention: Record<string, number>; series: { date: string; orders: number; pos: number; services: number }[]; top_services: { name: string; count: number; revenue: number; rating: number | null }[]; top_shops: { code: string; total: number }[]; satisfaction: { avg: number | null; count: number } }
+type D = { days: number; since: string; commission: number; revenue: { orders: number; pos: number; services: number }; counts: Record<string, number>; orders_by_status: Record<string, number>; bookings_by_status: Record<string, number>; attention: Record<string, number>; series: { date: string; orders: number; pos: number; services: number }[]; top_services: { name: string; count: number; revenue: number; rating: number | null }[]; top_shops: { code: string; total: number }[]; satisfaction: { avg: number | null; count: number } }
 const F = (n: number) => `${Math.round(n).toLocaleString("fr-FR")} FCFA`
 const COLORS = { orders: "#0B7A43", pos: "#F5B700", services: "#7C3AED" }
 const LABELS = { orders: "Commandes livrées", pos: "Caisse boutiques", services: "Services terminés" }
@@ -60,10 +60,11 @@ const Dashboard = () => {
           <Kpi label={LABELS.pos} value={F(d.revenue.pos)} sub={`${d.counts.pos_sales} vente(s)`} />
           <Kpi label={LABELS.services} value={F(d.revenue.services)} sub={`${d.counts.bookings_done} sur ${d.counts.bookings} demande(s)`} />
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Kpi label="Satisfaction services" value={d.satisfaction.avg ? `${d.satisfaction.avg} / 5` : "Pas encore d'avis"} sub={`${d.satisfaction.count} avis`} />
           <Kpi label="Demandes OUTIKO / JEULIKO" value={d.counts.outiko_requests} />
           <Kpi label="Nouvelles boutiques" value={d.counts.new_shops} />
+          <Kpi label="Commissions Lx (livraisons)" value={F(d.commission)} />
         </div>
 
         <Container className="p-5"><div className="mb-2 flex flex-wrap items-center justify-between gap-2"><Heading level="h3">Chiffre d&apos;affaires par jour</Heading>

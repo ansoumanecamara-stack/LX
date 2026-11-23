@@ -1,6 +1,8 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { lx, waSend } from "../../../../../../lib/lx"
-import { publicBooking, sameClient } from "../../../../../../lib/services"
+import { bookingView } from "../../../../../../lib/pay-targets"
+import { getConfig } from "../../../../../../lib/payments"
+import { sameClient } from "../../../../../../lib/services"
 
 // Le client accepte le devis ou annule sa demande.
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
@@ -13,5 +15,5 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   else return res.status(400).json({ message: "Action inconnue." })
   const u = await svc.updateServiceBookings({ id: b.id, status } as any)
   if (process.env.LX_WA_NUMBER) waSend(process.env.LX_WA_NUMBER, `Demande ${b.ref} (${b.service_name}) : le client a ${status === "confirmed" ? "accepté le devis" : "annulé"}.`).catch(() => {})
-  res.json({ booking: publicBooking(u) })
+  res.json({ booking: await bookingView(req.scope, await getConfig(req.scope), u) })
 }

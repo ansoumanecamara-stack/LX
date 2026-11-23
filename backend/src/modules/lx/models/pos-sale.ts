@@ -15,6 +15,7 @@ const PosSale = model.define("pos_sale", {
   customer_name: model.text().nullable(),
   customer_phone: model.text().nullable(),
   note: model.text().nullable(),
+  commission: model.number().default(0), // commission Lx figée à la vente (0 si désactivée)
   status: model.enum(["completed", "voided"]).default("completed"),
   voided_at: model.dateTime().nullable(),
 })

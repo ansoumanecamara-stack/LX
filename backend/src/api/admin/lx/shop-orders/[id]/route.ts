@@ -1,6 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { lx } from "../../../../../lib/lx"
 import { afterShopOrderChange } from "../../../../../lib/order-sync"
+import { notifyCustomerOrder } from "../../../../../lib/notify"
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const svc = lx(req.scope), b = (req.body || {}) as any
   const so = await svc.retrieveShopOrder(req.params.id).catch(() => null)
@@ -12,6 +13,6 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     if (b.courier_id !== undefined) await svc.updateShopOrders({ id: so.id, courier_id: b.courier_id || null } as any)
     if (b.payment_status === "paid") await svc.updateShopOrders({ id: so.id, payment_status: "paid" } as any)
   } catch (e: any) { return res.status(409).json({ message: e.message }) }
-  if (b.status) await afterShopOrderChange(req.scope, so.order_id)
+  if (b.status) { await afterShopOrderChange(req.scope, so.order_id); notifyCustomerOrder(so, b.status) }
   res.json({ ok: true })
 }

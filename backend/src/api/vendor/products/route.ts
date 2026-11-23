@@ -37,7 +37,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
       options: [{ title: "Défaut", values: ["Standard"] }],
       variants: [{ title: "Standard", options: { Défaut: "Standard" }, sku: b.sku ? String(b.sku).trim().slice(0, 60) : undefined, manage_inventory: true, prices: [{ currency_code: "xof", amount: price }] }],
       category_ids: b.category_id ? [String(b.category_id)] : undefined,
-      metadata: { shop_id: shop.id, shop_name: shop.name, old_price: b.old_price ? Number(b.old_price) : null, cost_price: b.cost_price ? Math.round(Number(b.cost_price)) : null, low_stock: b.low_stock !== undefined && b.low_stock !== "" ? Math.max(0, Math.round(Number(b.low_stock))) : 3 },
+      metadata: { shop_id: shop.id, shop_code: shop.code, old_price: b.old_price ? Number(b.old_price) : null, cost_price: b.cost_price ? Math.round(Number(b.cost_price)) : null, low_stock: b.low_stock !== undefined && b.low_stock !== "" ? Math.max(0, Math.round(Number(b.low_stock))) : 3 },
     }] },
   })
   const product = result[0]

@@ -5,6 +5,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card"
 import EmptyState from "@/components/ui/EmptyState"
 import Skeleton from "@/components/ui/Skeleton"
 import StatCard, { CountUp } from "@/components/ui/StatCard"
+import BalanceCard from "@/components/vendor/BalanceCard"
 import Shell, { useVendor } from "@/components/vendor/Shell"
 import { fcfa } from "@/lib/medusa"
 import { vendorApi } from "@/lib/vendor"
@@ -33,6 +34,7 @@ function Inner() {
       <StatCard icon={Banknote} tone="green" value={s.margin === null ? "n/a" : <span className="text-xl"><CountUp value={s.margin} format={fcfa} /></span>} label={s.margin === null ? "Marge (ajoutez vos prix d'achat)" : "Marge sur les ventes"} />
       <StatCard icon={PackageCheck} tone="blue" value={<CountUp value={s.delivered} />} label="Commandes livrées" />
       <StatCard icon={BadgeCheck} tone="orange" value={s.accept_rate === null ? "n/a" : <CountUp value={s.accept_rate} format={(n) => `${n} %`} />} label="Commandes acceptées" /></div>
+    <BalanceCard />
     <Card><CardHeader><h2 className="text-lg font-bold">Ventes livrées, 14 derniers jours</h2></CardHeader><CardBody><SalesChart days={s.days} /></CardBody></Card>
     <Card><CardHeader><h2 className="flex items-center gap-2 text-lg font-bold"><Trophy className="size-5 text-accent-500" />Produits les plus vendus</h2></CardHeader>
       {s.top.length ? <ol className="divide-y divide-line">{s.top.map((t, i) => (<li key={t.title} data-testid="top-product" className="flex items-center gap-4 px-6 py-4"><span className="grid size-8 place-items-center rounded-full bg-surface font-display font-bold">{i + 1}</span><span className="flex-1 font-semibold">{t.title}</span><span className="text-sm text-slate-500">{t.qty} vendu{t.qty > 1 ? "s" : ""}</span>{t.margin ? <span className="text-sm text-brand-600">Marge {fcfa(t.margin)}</span> : null}<b>{fcfa(t.revenue)}</b></li>))}</ol>

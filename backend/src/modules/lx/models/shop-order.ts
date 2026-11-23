@@ -21,6 +21,7 @@ const ShopOrder = model.define("shop_order", {
   payment_ref: model.text().nullable(), // référence de la transaction mobile money
   items: model.json(), // [{title, quantity, unit_price, product_id}]
   subtotal: model.number(),
+  commission: model.number().nullable(), // commission Lx, figée à la livraison
   shop: model.belongsTo(() => Shop, { mappedBy: "orders" }),
   courier: model.belongsTo(() => Courier, { mappedBy: "orders" }).nullable(),
 })

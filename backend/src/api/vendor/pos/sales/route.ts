@@ -1,4 +1,5 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { posCommission } from "../../../../lib/commission"
 import { lx, norm } from "../../../../lib/lx"
 import { currentShop } from "../../../../lib/vendor"
 import { shopProducts, costOf, levelsOf, priceOf } from "../../../../lib/vendor-products"
@@ -45,7 +46,7 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
   }
   const svc = lx(req.scope), prev: any[] = await svc.listPosSales({ shop_id: shop.id } as any, { order: { number: "DESC" }, take: 1 })
   const number = (prev[0]?.number ?? 0) + 1
-  const sale: any = await svc.createPosSales({ shop_id: shop.id, number, items, subtotal, discount, total, payment_method: b.payment_method, amount_received: received, change_given: change,
+  const sale: any = await svc.createPosSales({ shop_id: shop.id, number, items, subtotal, discount, total, payment_method: b.payment_method, commission: await posCommission(req.scope, shop.id, total), amount_received: received, change_given: change,
     customer_name: b.customer_name ? String(b.customer_name).slice(0, 80) : null, customer_phone: b.customer_phone ? norm(String(b.customer_phone)) : null, note: b.note ? String(b.note).slice(0, 300) : null } as any)
   const done: typeof items = []
   try { for (const i of items) { await moveStock(req.scope, { shopId: shop.id, productId: i.product_id, title: i.title, delta: -i.quantity, reason: "pos_sale", ref: sale.id, note: `Caisse, ticket ${number}` }); done.push(i) } }

@@ -10,6 +10,7 @@ import Container from "@/components/ui/Container"
 import { Field, Input } from "@/components/ui/Field"
 import PageHeader from "@/components/ui/PageHeader"
 import Stepper from "@/components/ui/Stepper"
+import PayPanel from "@/components/pay/PayPanel"
 import ReviewForm from "@/components/services/ReviewForm"
 import Stars from "@/components/services/Stars"
 import { fcfa, store } from "@/lib/medusa"
@@ -20,7 +21,7 @@ const IDX: Record<string, number> = { new: 0, quoted: 1, confirmed: 2, in_progre
 
 function Inner() {
   const sp = useSearchParams(), [ref, setRef] = useState(sp.get("ref") ?? ""), [phone, setPhone] = useState(sp.get("phone") ?? "")
-  const [b, setB] = useState<Booking | null>(null), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
+  const [paidNow, setPaidNow] = useState(false), [b, setB] = useState<Booking | null>(null), [err, setErr] = useState(""), [busy, setBusy] = useState(false)
   const load = useCallback(async (r: string, p: string) => {
     setBusy(true); setErr("")
     try { setB((await store(`/store/lx/service-bookings/track?ref=${encodeURIComponent(r.trim())}&phone=${encodeURIComponent(p)}`)).booking) } catch (e: any) { setB(null); setErr(e.message) } finally { setBusy(false) }
@@ -51,6 +52,8 @@ function Inner() {
           {b.quote_amount !== null && <div className="rounded-2xl bg-brand-50 p-5"><p className="text-sm text-brand-700">Devis</p><p className="font-display text-3xl font-extrabold text-brand-700" data-testid="quote">{fcfa(b.quote_amount)}</p>
             <p className="mt-1 text-sm text-slate-600">À payer à la fin de l&apos;intervention, en espèces, Wave ou Orange Money.</p></div>}
           {b.status === "new" && <p className="rounded-2xl bg-surface p-4 text-sm text-slate-600">Un conseiller Lx vous contacte bientôt avec un devis.</p>}
+          {b.payment && b.status !== "cancelled" && (b.payment.due > 0 || !!b.payment.pending || paidNow) && <PayPanel type="service" refNo={b.ref} phone={phone} failed={sp.get("pay") === "echec"} onPaid={() => { setPaidNow(true); load(b.ref, phone) }} />}
+          {b.payment && b.payment.paid > 0 && <p className="text-sm text-slate-600" data-testid="paid-line">Payé : <b>{fcfa(b.payment.paid)}</b>{b.payment.due === 0 && b.payment.total > 0 ? " (soldé)" : ""}</p>}
           {b.can_review && <ReviewForm b={b} phone={phone} onDone={setB} />}
           {b.rating != null && <div className="rounded-2xl bg-surface p-5" data-testid="my-review"><p className="text-sm text-slate-500">Votre avis</p><Stars value={b.rating} className="size-6" />{b.review_text && <p className="mt-2 text-[15px] text-slate-700">{b.review_text}</p>}<p className="mt-2 text-sm text-slate-500">Merci, il aide les autres clients.</p></div>}
           <div className="flex flex-wrap gap-3">

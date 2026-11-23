@@ -15,5 +15,5 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   const totals = new Map<string, number>()
   for (const i of (cart.items ?? []) as any[]) { const sid = shopOf.get(i.product_id); if (sid) totals.set(sid, (totals.get(sid) || 0) + Number(i.unit_price) * i.quantity) }
   const shops = await Promise.all([...totals.keys()].map((id) => lx(req.scope).retrieveShop(id)))
-  res.json({ shops: shops.map((s: any) => ({ id: s.id, name: s.name, subtotal: totals.get(s.id), wave: s.wave_number, om: s.om_number })) })
+  res.json({ shops: shops.map((s: any) => ({ id: s.id, code: s.code, subtotal: totals.get(s.id), wave: s.wave_number, om: s.om_number })) })
 }

@@ -1,6 +1,8 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { lx, waSend } from "../../../../../../lib/lx"
-import { publicBooking, sameClient } from "../../../../../../lib/services"
+import { bookingView } from "../../../../../../lib/pay-targets"
+import { getConfig } from "../../../../../../lib/payments"
+import { sameClient } from "../../../../../../lib/services"
 
 // Le client note l'intervention terminée (une seule fois).
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
@@ -14,5 +16,5 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   const text = String(body.comment || "").trim().slice(0, 600) || null
   const u = await svc.updateServiceBookings({ id: b.id, rating, review_text: text, reviewed_at: new Date() } as any)
   if (rating <= 2 && process.env.LX_WA_NUMBER) waSend(process.env.LX_WA_NUMBER, `⚠️ Avis ${rating}/5 sur ${b.ref} (${b.service_name}, ouvrier ${b.worker_code || "?"})${text ? ` : ${text}` : ""}`).catch(() => {})
-  res.json({ booking: publicBooking(u) })
+  res.json({ booking: await bookingView(req.scope, await getConfig(req.scope), u) })
 }

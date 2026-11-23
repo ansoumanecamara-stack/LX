@@ -42,7 +42,7 @@ export default function Shell({ title, subtitle, actions, children }: { title: s
     <div className="min-h-dvh bg-surface lg:grid lg:grid-cols-[260px_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col bg-night p-5 text-white lg:flex">
         <div className="flex items-end gap-2"><Logo tone="light" tagline={false} href="/vendor" /><span className="mb-1 text-[11px] leading-tight text-slate-400">Lo Soxla ?<br />Espace boutique</span></div>
-        <div className="mt-6 rounded-2xl bg-white/5 p-4"><div className="font-bold">{shop.name}</div>
+        <div className="mt-6 rounded-2xl bg-white/5 p-4"><div className="font-bold">{shop.name}</div><div className="text-xs text-white/60" data-testid="shop-code">Identifiant public {shop.code}</div>
           <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-400"><MessageCircle className="size-3.5" />+{shop.phone}</div><Badge tone={stTone} className="mt-3">{stLabel}</Badge></div>
         <nav className="mt-6 flex flex-col gap-1">{NAV.map((n) => link(n))}</nav>
         <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-4 text-sm text-slate-400">

@@ -6,6 +6,13 @@ import ServiceRequest from "./models/service-request"
 import Review from "./models/review"
 import StockMovement from "./models/stock-movement"
 import PosSale from "./models/pos-sale"
+import Ad from "./models/ad"
+import Prestation from "./models/prestation"
+import Worker from "./models/worker"
+import ServiceBooking from "./models/service-booking"
+import Payout from "./models/payout"
+import Setting from "./models/setting"
+import LxPayment from "./models/payment"
 
 export const TRANSITIONS: Record<string, string[]> = {
   pending: ["confirmed", "rejected", "cancelled"],
@@ -16,7 +23,7 @@ export const TRANSITIONS: Record<string, string[]> = {
   cancelled: [],
 }
 
-class LxModuleService extends MedusaService({ Shop, Courier, ShopOrder, ServiceRequest, Review, StockMovement, PosSale }) {
+class LxModuleService extends MedusaService({ Shop, Courier, ShopOrder, ServiceRequest, Review, StockMovement, PosSale, Ad, Prestation, Worker, ServiceBooking, Setting, LxPayment, Payout }) {
   /** Change le statut d'une sous-commande en respectant les transitions autorisées. */
   async transition(id: string, next: string) {
     const so = await this.retrieveShopOrder(id)

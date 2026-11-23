@@ -50,6 +50,11 @@ services:
         value: "1500"
       - key: LX_WA_NUMBER
         value: "221770000000"
+      # Paiement Wave automatique (facultatif) : à renseigner seulement si vous utilisez le mode « API Wave » (voir README)
+      - key: LX_WAVE_API_KEY
+        sync: false
+      - key: LX_WAVE_WEBHOOK_SECRET
+        sync: false
 
   # Vitrine, espace client et espace boutique
   - type: web

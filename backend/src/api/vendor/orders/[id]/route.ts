@@ -2,6 +2,7 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/
 import { lx } from "../../../../lib/lx"
 import { currentShop } from "../../../../lib/vendor"
 import { afterShopOrderChange } from "../../../../lib/order-sync"
+import { notifyCustomerOrder } from "../../../../lib/notify"
 
 // La boutique confirme ou refuse sa sous-commande.
 export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse) {
@@ -16,5 +17,6 @@ export async function POST(req: AuthenticatedMedusaRequest, res: MedusaResponse)
   if (!next) return res.status(400).json({ message: "Action invalide." })
   try { await svc.transition(so.id, next) } catch (e: any) { return res.status(409).json({ message: e.message }) }
   await afterShopOrderChange(req.scope, so.order_id)
+  notifyCustomerOrder(so, next)
   res.json({ ok: true })
 }

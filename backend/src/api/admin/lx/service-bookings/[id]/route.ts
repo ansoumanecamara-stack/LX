@@ -1,5 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { lx, waSend } from "../../../../../lib/lx"
+import { getConfig, paidTotal } from "../../../../../lib/payments"
+import { serviceDue } from "../../../../../lib/pay-targets"
 import { SLOTS, STATUS, workerMessage } from "../../../../../lib/services"
 
 // Le conseiller Lx fixe le devis, affecte un ouvrier, fait avancer le statut.
@@ -20,6 +22,10 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   if (b.preferred_date !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(b.preferred_date)) d.preferred_date = b.preferred_date
   if (b.time_slot !== undefined && SLOTS[b.time_slot]) d.time_slot = b.time_slot
   if (d.status === "confirmed" && !(d.worker_id ?? cur.worker_id)) return res.status(400).json({ message: "Affectez d'abord un ouvrier." })
+  if (d.status === "in_progress") {
+    const cfg = await getConfig(req.scope), { required } = serviceDue({ ...cur, status: "confirmed" }, cfg, 0)
+    if (cfg.services.block_start_until_paid && required > 0 && (await paidTotal(req.scope, "service", cur.ref)) < required) return res.status(409).json({ message: `Acompte de ${required} FCFA non reçu : le client doit payer avant le début de l'intervention.` })
+  }
   const u = await svc.updateServiceBookings({ id: cur.id, ...d } as any)
   // Prévenir le client par WhatsApp (si l'API est configurée) quand le devis ou le statut change
   if (u.status !== cur.status || (d.quote_amount && d.quote_amount !== cur.quote_amount)) {

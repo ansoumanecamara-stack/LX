@@ -36,6 +36,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
   res.json({
     days, since: sinceDay,
     revenue: { orders: ordersRevenue.reduce((s: number, x: any) => s + x.subtotal, 0), pos: p.reduce((s: number, x: any) => s + x.total, 0), services: done.reduce((s: number, x: any) => s + (x.quote_amount || 0), 0) },
+    commission: ordersRevenue.reduce((t: number, x: any) => t + (x.commission || 0), 0) + p.reduce((t: number, x: any) => t + (x.commission || 0), 0),
     counts: { orders: o.length, orders_delivered: ordersRevenue.length, pos_sales: p.length, bookings: b.length, bookings_done: done.length, outiko_requests: rq.length, new_shops: shops.filter(inP).length },
     orders_by_status: count(o), bookings_by_status: count(b),
     attention: {

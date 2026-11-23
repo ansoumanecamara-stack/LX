@@ -7,12 +7,13 @@ import Stepper from "@/components/ui/Stepper"
 import { fcfa, store } from "@/lib/medusa"
 import { KeyRound, Smartphone } from "lucide-react"
 import ReviewForm from "./ReviewForm"
+import PayPanel from "@/components/pay/PayPanel"
 
 const LABEL: Record<string, string> = { pending: "En attente boutique", confirmed: "Confirmée", rejected: "Refusée par la boutique", picked_up: "Colis récupéré, en route", delivered: "Livrée", cancelled: "Annulée" }
 const TONE: Record<string, Tone> = { pending: "orange", confirmed: "blue", picked_up: "blue", delivered: "green", rejected: "red", cancelled: "red" }
 const STEPS = ["Reçue", "Confirmée", "En route", "Livrée"], IDX: Record<string, number> = { pending: 0, confirmed: 1, picked_up: 2, delivered: 3 }
 
-export default function Tracking({ refNo, phone }: { refNo: string; phone: string }) {
+export default function Tracking({ refNo, phone, autoMethod, failed }: { refNo: string; phone: string; autoMethod?: string; failed?: boolean }) {
   const [d, setD] = useState<any>(null), [err, setErr] = useState("")
   useEffect(() => {
     if (!refNo || !phone) return
@@ -23,8 +24,9 @@ export default function Tracking({ refNo, phone }: { refNo: string; phone: strin
   if (!d) return null
   return (<div className="space-y-5" data-testid="tracking">
     <h2 className="text-xl font-bold">Commande #{d.order_display_id}</h2>
+    <PayPanel type="order" refNo={refNo} phone={phone} autoMethod={autoMethod} failed={failed} />
     {d.shop_orders.map((s: any) => (<Card key={s.id}>
-      <CardHeader><div className="font-bold">{s.shop}</div><Badge tone={TONE[s.status] ?? "gray"}>{LABEL[s.status] ?? s.status}</Badge></CardHeader>
+      <CardHeader><div className="font-bold">{s.shop ? `Boutique ${s.shop}` : "Boutique"}</div><Badge tone={TONE[s.status] ?? "gray"}>{LABEL[s.status] ?? s.status}</Badge></CardHeader>
       {s.status in IDX && <Stepper steps={STEPS} current={IDX[s.status]} finished={s.status === "delivered"} />}
       <CardBody className="space-y-3">
         {s.delivery_code && !["delivered", "rejected", "cancelled"].includes(s.status) && <div data-testid="delivery-code" className="flex items-center gap-3 rounded-2xl bg-accent-500/15 p-4"><KeyRound className="size-6 shrink-0 text-yellow-800" /><div><p className="text-sm text-slate-600">Code de livraison : à donner au livreur à la réception</p><p className="font-display text-3xl font-extrabold tracking-[0.3em]">{s.delivery_code}</p></div></div>}
